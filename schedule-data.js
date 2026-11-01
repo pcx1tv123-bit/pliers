@@ -54,23 +54,23 @@ const MASTER_SCHEDULE = {
             { 
                 id: "m4", 
                 timeStart: "12:40", 
-                timeEnd: "13:30", 
-                subject: "วิทยาศาสตร์กายภาพ", 
+                timeEnd: "14:20", 
+                subject: "วิทยาศาสตร์", 
                 room: "ว30101", 
                 instructor: "ครูพงษ์ดนัย", 
                 image: "https://i.pinimg.com/1200x/8e/60/d3/8e60d32df4b628534e56f8dc2bd5788e.jpg",
-                description: "วิทยาศาสตร์กายภาพ",
+                description: "วิทยาศาสตร์กาย",
                 color: "bg-cyan-50 dark:bg-cyan-950/40 border-cyan-200 dark:border-cyan-900/60 text-cyan-900 dark:text-cyan-200" 
             },
             { 
                 id: "m5", 
-                timeStart: "13:30", 
-                timeEnd: "14:20", 
-                subject: "วิทยาศาสตร์กายภาพ", 
-                room: "ว30101", 
-                instructor: "ครูพงษ์ดนัย", 
+                timeStart: "14:20", 
+                timeEnd: "15:10", 
+                subject: "ว่าง", 
+                room: "-", 
+                instructor: "-", 
                 image: "https://i.pinimg.com/1200x/8e/60/d3/8e60d32df4b628534e56f8dc2bd5788e.jpg",
-                description: "วิทยาศาสตร์กายภาพ",
+                description: "-",
                 color: "bg-cyan-50 dark:bg-cyan-950/40 border-cyan-200 dark:border-cyan-900/60 text-cyan-900 dark:text-cyan-200" 
             }
         ]
@@ -409,11 +409,11 @@ const MASTER_SCHEDULE = {
                 id: "f4", 
                 timeStart: "11:00", 
                 timeEnd: "11:50", 
-                subject: "ศิลปะ (ดนตรีไทย)", 
+                subject: "ดนตรีไทย", 
                 room: "ศ32102", 
                 instructor: "ครูวัชระ", 
                 image: "https://i.pinimg.com/1200x/8e/60/d3/8e60d32df4b628534e56f8dc2bd5788e.jpg",
-                description: "ศิลปะ (ดนตรีไทย)",
+                description: "ดนตรีไทย",
                 color: "bg-orange-50 dark:bg-orange-950/40 border-orange-200 dark:border-orange-900/60 text-orange-900 dark:text-orange-200" 
             },
             { 
