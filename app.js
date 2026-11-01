@@ -5,7 +5,7 @@ const GOOGLE_CHAT_WEBHOOK_URL = "";
 let autoNotificationEnabled = true;
 let notifiedClassIdsForToday = new Set();
 let morningNotifiedDateStr = "";
-let semesterStartDate = "2026-10-19";
+let semesterStartDate = "2026-11-02";
 
 function getWebAppUrl() {
     return window.location.href;
