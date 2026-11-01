@@ -410,7 +410,7 @@ function renderWeeklySchedule() {
                         </div>
                     </div>
                     <div class="flex items-center gap-2 self-end sm:self-auto flex-wrap">
-                        ${!c.isLunch ? `<span class="text-xs font-bold px-2.5 py-1 rounded-lg bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-200">ห้อง ${c.room}</span>` : `<span class="text-xs font-bold px-2.5 py-1 rounded-lg bg-emerald-100 dark:bg-emerald-950 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800">พักเที่ยง</span>`}
+                        ${!c.isLunch ? `<span class="text-xs font-bold px-2.5 py-1 rounded-lg bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-200">รห้สวิชา ${c.room}</span>` : `<span class="text-xs font-bold px-2.5 py-1 rounded-lg bg-emerald-100 dark:bg-emerald-950 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800">พักเที่ยง</span>`}
                         <button onclick="openClassDetails('${c.id}', '${dayKey}')" class="text-xs font-bold px-3 py-2 rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white shadow-sm"><i class="fa-solid fa-expand mr-1"></i> ดูรายละเอียด</button>
                     </div>
                 </div>
