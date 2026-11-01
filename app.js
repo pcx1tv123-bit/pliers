@@ -363,7 +363,7 @@ function renderTodaySchedule() {
                     </span>
                     ${isLunch ? `<span class="bg-emerald-100 dark:bg-emerald-950 text-emerald-700 dark:text-emerald-300 text-[11px] font-bold px-2 py-0.5 rounded border border-emerald-200 dark:border-emerald-800">พักเที่ยง</span>` : ''}
                 </div>
-                ${!isLunch ? `<span class="text-xs font-bold px-2.5 py-0.5 rounded-full bg-indigo-100 dark:bg-indigo-950 text-indigo-700 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-800">ห้อง ${item.room}</span>` : ''}
+                ${!isLunch ? `<span class="text-xs font-bold px-2.5 py-0.5 rounded-full bg-indigo-100 dark:bg-indigo-950 text-indigo-700 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-800">รห้สวิชา ${item.room}</span>` : ''}
             </div>
 
             <div class="my-3">
