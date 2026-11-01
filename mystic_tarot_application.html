@@ -1,0 +1,495 @@
+<!DOCTYPE html>
+<html lang="th" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mystic Gypsy - แอปทำนายดวงชะตาด้วยไพ่ยิปซีโบราณ 8 ใบ</title>
+  
+  <link rel="icon" href="https://media.discordapp.net/attachments/1456985067636129908/1566454893898760292/IMG_6143.jpg?ex=6ae89a4e&is=6ae748ce&hm=fa815a87628d4ac1d917546de9b0753fc31e5a4aa4113791f7fdaac9d3547979&=&format=webp&width=384&height=384" type="image/png">
+  
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;500;600;700&family=Cinzel:wght@600;700;900&display=swap" rel="stylesheet">
+  
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            mystic: {
+              950: '#07020d',
+              900: '#120722',
+              800: '#210c3b',
+              700: '#38145e',
+              gold: '#f3c669',
+              goldLight: '#ffe5a3',
+            }
+          },
+          fontFamily: {
+            sans: ['Kanit', 'sans-serif'],
+            cinzel: ['Cinzel', 'serif'],
+          }
+        }
+      }
+    }
+  </script>
+
+  <style>
+    body {
+      font-family: 'Kanit', sans-serif;
+      background-color: #07020d;
+      color: #e2d9f3;
+      overflow-x: hidden;
+      font-size: 14px;
+    }
+
+    #stars-canvas {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .perspective-1000 { perspective: 1000px; }
+    .transform-style-3d { transform-style: preserve-3d; }
+    .backface-hidden { backface-visibility: hidden; -webkit-backface-visibility: hidden; }
+    .rotate-y-180 { transform: rotateY(180deg); }
+    .card-inner { transition: transform 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+    .card-container.flipped .card-inner { transform: rotateY(180deg); }
+
+    .gold-border {
+      border: 1px solid rgba(243, 198, 105, 0.4);
+      box-shadow: 0 0 10px rgba(243, 198, 105, 0.15);
+    }
+    
+    @keyframes cardPulse {
+      0%, 100% { box-shadow: 0 0 10px rgba(243, 198, 105, 0.2); }
+      50% { box-shadow: 0 0 20px rgba(243, 198, 105, 0.4); }
+    }
+    .card-pulse { animation: cardPulse 3s infinite ease-in-out; }
+
+    .reading-hero { background: linear-gradient(145deg, rgba(31,27,24,.95), rgba(18,15,14,.98)); border: 1px solid rgba(211,177,112,.35); box-shadow: 0 10px 30px rgba(0,0,0,0.4); }
+    .eyebrow { display: inline-block; color: #d8bd87; font-size: 10px; letter-spacing: .15em; border: 1px solid #d8bd8740; border-radius: 999px; padding: 4px 10px; }
+    
+    .deck-stage { position: relative; width: 110px; height: 140px; margin: 16px auto; }
+    .deck-card { position: absolute; width: 90px; height: 130px; left: 10px; top: 5px; border-radius: 8px; border: 1px solid #c9ad75; background: repeating-linear-gradient(45deg,#26221d 0,#26221d 4px,#30291f 4px,#30291f 6px); box-shadow: 0 6px 15px rgba(0,0,0,0.6); }
+    .deck-card-back { transform: rotate(-10deg) translate(-5px, 2px); }
+    .deck-card-mid { transform: rotate(8deg) translate(5px, 0); }
+    .deck-card-front { transform: rotate(0deg); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px; background: linear-gradient(145deg,#29251f,#11100e); outline: 1px solid #c9ad75; outline-offset: -5px; }
+    .deck-star { color: #d8bd87; font-size: 24px; }
+    .deck-label { font: 600 10px/1.4 Cinzel, serif; letter-spacing: .15em; color: #e7d6b0; text-align: center; }
+    
+    .draw-button { padding: 10px 20px; color: #17130c; background: linear-gradient(135deg,#e8d3a2,#c6a765); border: 1px solid #f0dfb7; border-radius: 8px; font-weight: 600; font-size: 13px; box-shadow: 0 4px 15px rgba(0,0,0,0.3); transition: transform .2s, filter .2s; }
+    .draw-button:hover { transform: translateY(-2px); filter: brightness(1.08); }
+    .draw-button:disabled { opacity: .65; cursor: wait; }
+
+    .gypsy-art { display: block; width: 100%; height: 100%; border-radius: 5px; object-fit: cover; background: #18131d; }
+    .card-art-frame { padding: 3px; border-radius: 8px; background: linear-gradient(145deg,#e3cc91,#5d4927); box-shadow: 0 6px 15px rgba(0,0,0,0.5); }
+    .gallery-art { width: 100%; aspect-ratio: 2/3; border-radius: 5px; object-fit: cover; background: #18131d; }
+    
+    @keyframes shuffleDeck { 0%,100%{transform:translateX(0) rotate(0)}25%{transform:translateX(-12px) rotate(-6deg)}50%{transform:translateX(12px) rotate(6deg)}75%{transform:translateY(-5px) rotate(-3deg)} }
+    .deck-stage.shuffling .deck-card { animation: shuffleDeck .4s ease-in-out 3; }
+
+    .card-container { filter: drop-shadow(0 8px 15px rgba(0,0,0,0.3)); transition: transform .3s ease; }
+    .card-container:hover { transform: translateY(-3px); }
+    .card-inner { border-radius: 12px; }
+    .card-container .card-front, .card-container .card-back { border-radius: 12px; }
+
+    ::-webkit-scrollbar { width: 6px; }
+    ::-webkit-scrollbar-track { background: #07020d; }
+    ::-webkit-scrollbar-thumb { background: #38145e; border-radius: 3px; border: 1px solid rgba(243, 198, 105, 0.3); }
+    ::-webkit-scrollbar-thumb:hover { background: #f3c669; }
+  </style>
+</head>
+<body class="min-h-screen flex flex-col relative">
+
+  <canvas id="stars-canvas"></canvas>
+
+  <!-- Navigation Bar -->
+  <header class="relative z-10 border-b border-mystic-gold/20 bg-mystic-950/80 backdrop-blur-md sticky top-0">
+    <div class="max-w-6xl mx-auto px-4 py-2.5 flex flex-wrap justify-between items-center gap-3">
+      
+      <div class="flex items-center space-x-2.5 cursor-pointer" onclick="switchTab('reading')">
+        <div class="w-8 h-8 rounded-full bg-gradient-to-tr from-mystic-700 to-mystic-900 border border-mystic-gold/60 flex items-center justify-center text-mystic-gold shadow-md">
+          <i class="fa-solid fa-eye text-sm animate-pulse"></i>
+        </div>
+        <div>
+          <h1 class="text-base sm:text-lg font-bold font-cinzel tracking-wider text-transparent bg-clip-text bg-gradient-to-r from-mystic-goldLight via-mystic-gold to-amber-500">
+            MYSTIC GYPSY
+          </h1>
+          <p class="text-[9px] text-purple-300/70 tracking-widest font-cinzel uppercase">ศาสตร์ทำนายดวงชะตาไพ่ยิปซีโบราณ 8 ใบ</p>
+        </div>
+      </div>
+
+      <div class="flex items-center space-x-2">
+        <button id="nav-btn-reading" onclick="switchTab('reading')" 
+                class="px-3 py-1.5 rounded-lg text-xs font-medium border border-mystic-gold/40 bg-mystic-gold/10 text-mystic-gold transition-all">
+          <i class="fa-solid fa-sparkles mr-1"></i>เปิดไพ่ยิปซี 8 ใบ
+        </button>
+
+        <button id="nav-btn-gallery" onclick="switchTab('gallery')" 
+                class="px-3 py-1.5 rounded-lg text-xs font-medium border border-purple-800/60 bg-mystic-900/60 text-purple-300 hover:text-mystic-gold transition-all">
+          <i class="fa-solid fa-book-bookmark mr-1"></i>คลังความหมายไพ่ยิปซี (22 ใบหลัก)
+        </button>
+
+        <a href="index.html" 
+           id="tabBtn-game" 
+           class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-heading text-xs font-semibold shadow-md border border-emerald-400/40 active:scale-95 transition-all">
+            <i class="fa-solid fa-arrow-left text-emerald-200"></i>
+            <span>กลับหน้าหลัก</span>
+        </a>
+      </div>
+
+    </div>
+  </header>
+
+  <!-- MAIN CONTAINER -->
+  <main class="relative z-10 flex-grow max-w-6xl w-full mx-auto px-4 py-6 space-y-6">
+
+    <!-- TAB 1: FORTUNE READING SECTION -->
+    <section id="tab-reading" class="space-y-6">
+      
+      <div class="reading-hero max-w-3xl mx-auto rounded-xl p-5 sm:p-7 text-center relative overflow-hidden">
+        <div class="relative z-10">
+          <span class="eyebrow"><i class="fa-solid fa-moon mr-1.5"></i>GYPSY SPREAD · ทำนายผ่าดวงชะตา 8 ตำแหน่ง</span>
+          <h2 class="text-xl sm:text-2xl font-semibold mt-3 mb-2 text-stone-100 font-cinzel">เปิดไพ่ยิปซีทำนายดวงชะตา 8 ใบ</h2>
+          <p class="max-w-lg mx-auto text-xs sm:text-sm text-stone-300 leading-relaxed">ตั้งจิตอธิษฐานส่งพลังงานถึงไพ่ยิปซี นึกถึงเรื่องชีวิต การงาน การเงิน ความรัก และโชคชะตา จากนั้นกดสับไพ่เพื่อเปิดคำทำนายและแนวทางแก้ดวงทั้ง 8 มิติ</p>
+          <div class="deck-stage" aria-label="สำรับไพ่ยิปซี">
+            <div class="deck-card deck-card-back"></div>
+            <div class="deck-card deck-card-mid"></div>
+            <div class="deck-card deck-card-front"><span class="deck-star">✦</span><span class="deck-label">GYPSY<br>SPREAD</span></div>
+          </div>
+          <button id="draw-cards-btn" onclick="drawTarotCards()" class="draw-button"><i class="fa-solid fa-shuffle mr-1.5"></i><span>สับไพ่ยิปซีและเปิดคำทำนาย 8 ใบ</span></button>
+        </div>
+      </div>
+
+      <!-- CARDS DISPLAY AREA -->
+      <div id="cards-display-area" class="hidden space-y-6">
+        
+        <div class="text-center">
+          <h3 class="text-lg sm:text-xl font-bold font-cinzel text-mystic-gold flex items-center justify-center space-x-2">
+            <i class="fa-solid fa-star-of-david text-[10px]"></i>
+            <span>ผังไพ่ยิปซีทำนายดวงชะตา 8 ใบของคุณ</span>
+            <i class="fa-solid fa-star-of-david text-[10px]"></i>
+          </h3>
+          <p class="text-[11px] text-purple-300/70 mt-0.5">แตะที่หน้าไพ่แต่ละใบเพื่อเปิดดูความหมายและคำทำนายยิปซี</p>
+        </div>
+
+        <!-- Cards Grid 8 Cards -->
+        <div id="cards-grid" class="grid grid-cols-2 sm:grid-cols-4 gap-4 max-w-5xl mx-auto">
+          <!-- Dynamically Generated via JS -->
+        </div>
+
+        <!-- DETAILED READINGS CONTAINER -->
+        <div id="readings-detail-container" class="max-w-4xl mx-auto bg-mystic-900/70 border border-mystic-gold/30 rounded-xl p-5 sm:p-6 backdrop-blur-md space-y-4">
+          <div class="bg-gradient-to-r from-purple-900/40 via-mystic-800/60 to-purple-900/40 border border-purple-500/30 p-4 rounded-lg space-y-2">
+            <h4 class="text-sm font-bold font-cinzel text-mystic-gold flex items-center space-x-2">
+              <i class="fa-solid fa-crystal-ball text-purple-400"></i>
+              <span>สรุปภาพรวมคำทำนายดวงชะตาและประโยชน์การนำไปใช้</span>
+            </h4>
+            <p id="overall-summary-text" class="text-xs sm:text-sm text-purple-100 leading-relaxed"></p>
+          </div>
+
+          <div id="cards-breakdown-list" class="space-y-4 pt-2"></div>
+        </div>
+
+      </div>
+
+    </section>
+
+    <!-- TAB 2: GYPSY GALLERY -->
+    <section id="tab-gallery" class="hidden space-y-5">
+      <div class="text-center max-w-xl mx-auto">
+        <h2 class="text-xl sm:text-2xl font-bold font-cinzel text-mystic-gold mb-1">
+          คลังความหมายไพ่ยิปซีโบราณ (22 ใบหลัก)
+        </h2>
+        <p class="text-xs text-purple-300/80">
+          คลิกที่ไพ่ยิปซีเพื่ออ่านคำทำนายโบราณ สัญลักษณ์ ประโยชน์ และคำแนะนำประจำใบ
+        </p>
+      </div>
+
+      <div id="gallery-grid" class="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-8 gap-3"></div>
+    </section>
+
+  </main>
+
+  <!-- MODAL -->
+  <div id="card-modal" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm hidden flex items-center justify-center p-4">
+    <div class="bg-mystic-900 border border-mystic-gold/50 rounded-xl max-w-md w-full p-5 relative max-h-[90vh] overflow-y-auto space-y-3 shadow-2xl">
+      <button onclick="closeModal()" class="absolute top-3 right-3 text-purple-300 hover:text-mystic-gold text-lg w-7 h-7 flex items-center justify-center">
+        <i class="fa-solid fa-xmark"></i>
+      </button>
+      <div id="modal-content" class="space-y-3"></div>
+    </div>
+  </div>
+
+  <!-- FOOTER -->
+  <footer class="relative z-10 border-t border-purple-900/40 py-4 text-center text-xs text-purple-400/60 bg-mystic-950/80 mt-auto">
+    <div class="max-w-5xl mx-auto px-4">
+      <p>© 2569 เจษฎากร พิทักษ์ • ห้อง IT.4501 | แอปทำนายดวงชะตาด้วยไพ่ยิปซีโบราณ 8 ใบ</p>
+    </div>
+  </footer>
+
+  <!-- SCRIPT -->
+  <script>
+    /* ตำแหน่งผังไพ่ยิปซี 8 ใบ */
+    const POSITIONS = [
+      { id: 1, title: "1. ตัวแทนเจ้าชะตา", sub: "จิตใจ / ตัวตนขณะนี้", color: "text-amber-300", bg: "bg-amber-950/40 border-amber-500/30" },
+      { id: 2, title: "2. อุปสรรค / สิ่งแวดล้อม", sub: "สิ่งกระทบ / ปัญหา", color: "text-rose-300", bg: "bg-rose-950/40 border-rose-500/30" },
+      { id: 3, title: "3. รากฐาน / อดีตที่ผ่านมา", sub: "สิ่งที่สร้างมา / อดีต", color: "text-indigo-300", bg: "bg-indigo-950/40 border-indigo-500/30" },
+      { id: 4, title: "4. อนาคตอันใกล้", sub: "เหตุการณ์เร็วๆ นี้", color: "text-cyan-300", bg: "bg-cyan-950/40 border-cyan-500/30" },
+      { id: 5, title: "5. บทสรุปโชคชะตา", sub: "ปลายทาง / ผลลัพธ์", color: "text-purple-300", bg: "bg-purple-950/40 border-purple-500/30" },
+      { id: 6, title: "6. การงาน / การเรียน", sub: "ภารกิจ / ความก้าวหน้า", color: "text-blue-300", bg: "bg-blue-950/40 border-blue-500/30" },
+      { id: 7, title: "7. การเงิน / โชคลาภ", sub: "ทรัพย์สิน / ทรัพยากร", color: "text-yellow-300", bg: "bg-yellow-950/40 border-yellow-500/30" },
+      { id: 8, title: "8. ความรัก / ความสัมพันธ์", sub: "คู่ครอง / มิตรภาพ", color: "text-emerald-300", bg: "bg-emerald-950/40 border-emerald-500/30" }
+    ];
+
+    /* ฐานข้อมูลไพ่ยิปซี 22 ใบ พร้อม URL ภาพจริง (Rider-Waite Authentic Deck) */
+    const GYPSY_CARDS = [
+      { id: 0, roman: "0", name: "The Fool", titleTh: "ไพ่วานร / คนท่องเที่ยว (จุดเริ่มต้นใหม่)", imageUrl: "https://upload.wikimedia.org/wikipedia/commons/9/90/RWS_Tarot_00_Fool.jpg", keywords: ["เริ่มต้นใหม่", "อิสรภาพ", "เสี่ยงท้าทาย", "ท่องเที่ยว"], meaning: "ดวงชะตากำลังเข้าสู่ช่วงเปลี่ยนผ่าน มีโอกาสได้เริ่มต้นสิ่งใหม่ๆ แบบอิสระ ได้เดินทาง หรือริเริ่มโครงการที่ไม่เคยทำมาก่อน", advice: "อย่ากลัวการเปลี่ยนแปลง เปิดใจรับสิ่งใหม่ แต่อย่าประมาทจนขาดแผนรองรับ", benefit: "ช่วยให้กล้าก้าวออกจาก Comfort Zone เปิดมุมมองชีวิตแบบอิสระ" },
+      { id: 1, roman: "I", name: "The Magician", titleTh: "ไพ่นักมายากล / จอมขมังเวทย์ (ปัญญาเลิศ)", imageUrl: "https://upload.wikimedia.org/wikipedia/commons/d/de/RWS_Tarot_01_Magician.jpg", keywords: ["ไหวพริบ", "ความสามารถ", "เนรมิตสำเร็จ", "แก้ปัญหา"], meaning: "คุณมีปัญญาไหวพริบสูง สามารถแก้ไขสถานการณ์ยากๆ ได้ดี หยิบจับสิ่งใดก็พลิกเป็นโอกาสและความสำเร็จได้อย่างอัศจรรย์", advice: "ดึงเอาความรู้และทักษะที่มีอยู่ออกมาใช้เต็มที่ เชื่อมั่นในตัวเอง", benefit: "ช่วยกระตุ้นความคิดสร้างสรรค์ ดึงศักยภาพภายในมาใช้แก้ปัญหา" },
+      { id: 2, roman: "II", name: "The High Priestess", titleTh: "ไพ่ราชินีพระจันทร์ / นักบวชหญิง (ลางสังหรณ์)", imageUrl: "https://upload.wikimedia.org/wikipedia/commons/8/88/RWS_Tarot_02_High_Priestess.jpg", keywords: ["สัญชาตญาณ", "เสน่ห์ลึกลับ", "อารมณ์ละเอียด", "ความลับ"], meaning: "ช่วงนี้เซนส์แรง ลางสังหรณ์แม่นยำ มีเสน่ห์แบบน่าค้นหา อาจมีเรื่องลับๆ หรือความรู้สึกภายในที่ยังไม่ได้เปิดเผย", advice: "ฟังเสียงสัญชาตญาณตนเอง ใช้ความเงียบสงบทบทวนจิตใจ", benefit: "เตือนให้หยุดคิด ไตร่ตรองความรู้สึกลึกๆ ก่อนตัดสินใจด้วยอารมณ์" },
+      { id: 3, roman: "III", name: "The Empress", titleTh: "ไพ่จักรพรรดินี / แม่ผู้มั่งคั่ง (ความสมบูรณ์)", imageUrl: "https://upload.wikimedia.org/wikipedia/commons/d/d2/RWS_Tarot_03_Empress.jpg", keywords: ["ร่ำรวย", "สมบูรณ์", "ความสุขสบาย", "ความรัก"], meaning: "ไพ่แห่งโชคลาภและการเสวยสุข การงานการเงินอุดมสมบูรณ์ สิ่งที่ลงทุนไว้เริ่มผลิดอกออกผล มีความอบอุ่นในครอบครัว", advice: "เสพสุขอย่างพอดี แบ่งปันความรักและโชคลาภให้คนรอบข้าง", benefit: "สร้างพลังงานบวก ดึงดูดความมั่งคั่งและความรุ่งเรืองเข้ามาในชีวิต" },
+      { id: 4, roman: "IV", name: "The Emperor", titleTh: "ไพ่จักรพรรดิ / ผู้นำยศใหญ่ (บารมีมั่นคง)", imageUrl: "https://upload.wikimedia.org/wikipedia/commons/c/c3/RWS_Tarot_04_Emperor.jpg", keywords: ["อำนาจ", "ความเป็นผู้นำ", "มั่นคง", "ผู้ใหญ่หนุน"], meaning: "ดวงเด่นเรื่องยศตำแหน่งและความมั่นคง ได้รับความไว้วางใจให้เป็นผู้นำ มีผู้ใหญ่ให้ความสนับสนุนและคอยคุ้มครอง", advice: "บริหารงานด้วยความเด็ดขาด ยึดมั่นในความถูกต้องและระเบียบวินัย", benefit: "ช่วยเสริมสร้างความเด็ดขาด วินัย และความเป็นผู้นำที่เข้มแข็ง" },
+      { id: 5, roman: "V", name: "The Hierophant", titleTh: "ไพ่สังฆราชโบราณ / ผู้ทรงศีล (คุณธรรมปัญญา)", imageUrl: "https://upload.wikimedia.org/wikipedia/commons/8/8d/RWS_Tarot_05_Hierophant.jpg", keywords: ["ผู้ใหญ่เมตตา", "ความรู้", "ศีลธรรม", "ปลอดภัย"], meaning: "ทำดีได้ดี ดวงแคล้วคลาดปลอดภัย มีผู้ใหญ่ให้ความเมตตาเอ็นดู เหมาะกับการศึกษาเรียนรู้สิ่งใหม่ๆ หรือเข้าหาธรรมะ", advice: "ยึดมั่นในศีลธรรม ไหว้พระทำบุญ และรับฟังคำสอนของผู้มีประสบการณ์", benefit: "ช่วยเตือนสติให้อยู่ในกรอบศีลธรรม และสร้างความสบายใจในจิตใจ" },
+      { id: 6, roman: "VI", name: "The Lovers", titleTh: "ไพ่คู่รักยิปซี / เสน่ห์เมตตา (การเลือกคู่)", imageUrl: "https://upload.wikimedia.org/wikipedia/commons/3/3a/TheLovers.jpg", keywords: ["ความรัก", "พันธมิตร", "ทางเลือก", "เสน่ห์"], meaning: "เด่นเรื่องความสัมพันธ์ การพบเนื้อคู่ หรือได้ร่วมมือทำธุรกิจกับหุ้นส่วนที่รู้ใจ แต่อาจต้องเผชิญทางเลือกสำคัญ", advice: "เลือกสิ่งที่ตรงกับหัวใจและความถูกต้อง ซื่อสัตย์ต่อความรู้สึก", benefit: "ส่งเสริมเสน่ห์ ความเข้าใจในคู่ครอง และการตัดสินใจเลือกทางเดิน" },
+      { id: 7, roman: "VII", name: "The Chariot", titleTh: "ไพ่อัศวินศึก / การฟันฝ่า (ชัยชนะลำบาก)", imageUrl: "https://upload.wikimedia.org/wikipedia/commons/9/9b/RWS_Tarot_07_Chariot.jpg", keywords: ["มุ่งมั่น", "การเดินทาง", "ฟันฝ่า", "ชัยชนะ"], meaning: "ต้องออกแรงเหน็ดเหนื่อย ออกเดินทาง หรือต่อสู้แข่งขันสูง แต่ด้วยความใจสู้ ไม่ยอมแพ้ คุณจะคว้าชัยชนะมาได้แน่นอน", advice: "อดทน คุมอารมณ์ให้อยู่ และพุ่งชนเป้าหมายโดยไม่ถอย", benefit: "สร้างพลังใจ ให้ความฮึดสู้ ไม่ท้อถอยต่ออุปสรรคเบื้องหน้า" },
+      { id: 8, roman: "VIII", name: "Strength", titleTh: "ไพ่หญิงสาวสยบราชสีห์ (อดทนสยบแข็ง)", imageUrl: "https://upload.wikimedia.org/wikipedia/commons/f/f5/RWS_Tarot_08_Strength.jpg", keywords: ["ความอดทน", "ความแข็งแกร่ง", "อ่อนโยนสยบแข็ง", "ชนะใจ"], meaning: "ต้องใช้ความใจเย็น อดทน และความอ่อนโยนสยบปัญหาหรือคนที่แข็งกร้าวรอบข้าง ใช้ความดีชนะใจศัตรูได้สำเร็จ", advice: "ใช้ความสงบสยบความเคลื่อนไหว อย่าใช้อารมณ์ปะทะโดยเด็ดขาด", benefit: "ฝึกฝนการควบคุมอารมณ์ ใช้สติและความใจเย็นในการชนะปัญหา" },
+      { id: 9, roman: "IX", name: "The Hermit", titleTh: "ไพ่ฤาษีชีป่า / ผู้แสวงบุญ (การค้นหาตัวเอง)", imageUrl: "https://upload.wikimedia.org/wikipedia/commons/4/4d/RWS_Tarot_09_Hermit.jpg", keywords: ["สันโดษ", "ทบทวน", "ปัญญา", "ความสงบ"], meaning: "ช่วงเวลาของการปลีกวิเวกพักกายพักใจ เหมาะกับการเรียนรู้ อ่านหนังสือ วิจัย หรือทำสมาธิ ความรักอาจค่อนข้างเงียบเหงา", advice: "ใช้เวลาอยู่กับตัวเอง ทบทวนสิ่งต่างๆ เพื่อค้นหาคำตอบที่แท้จริง", benefit: "ช่วยให้เกิดปัญญา ความสงบในจิตใจ และมองเห็นความจริงของชีวิต" },
+      { id: 10, roman: "X", name: "Wheel of Fortune", titleTh: "ไพ่กงล้อโชคชะตา / วัฏจักรยิปซี (โชคใหญ่)", imageUrl: "https://upload.wikimedia.org/wikipedia/commons/3/3c/RWS_Tarot_10_Wheel_of_Fortune.jpg", keywords: ["โชคลาภ", "จุดเปลี่ยน", "กงล้อหมุน", "ดวงขึ้น"], meaning: "กงล้อชะตากำลังหมุนพลิกผันจากร้ายกลายเป็นดี มีเกณฑ์ได้รับโชคลาภ เงินทอง หรือโอกาสใหม่ๆ แบบไม่คาดฝัน", advice: "เตรียมตัวให้พร้อมรับโอกาส ยิ้มรับการเปลี่ยนแปลงที่ดี", benefit: "เปิดดวงรับโชค สร้างความหวังและกำลังใจในยามดวงชะตาเปลี่ยนผ่าน" },
+      { id: 11, roman: "XI", name: "Justice", titleTh: "ไพ่เทพีความยุติธรรม / ตาชั่งโบราณ (ความถูกต้อง)", imageUrl: "https://upload.wikimedia.org/wikipedia/commons/e/e0/RWS_Tarot_11_Justice.jpg", keywords: ["ความถูกต้อง", "ความยุติธรรม", "เอกสารสัญญา", "เหตุผล"], meaning: "เกี่ยวข้องกับความถูกต้อง การตกลงเซ็นสัญญา เรื่องกฎหมาย ทำดีได้ดี ทำชั่วได้ชั่ว ทุกอย่างเป็นไปตามเหตุและผล", advice: "ยึดมั่นในความซื่อสัตย์สุจริต ตรวจสอบเอกสารสัญญาให้รอบคอบ", benefit: "ช่วยให้การตัดสินใจเป็นไปอย่างมีเหตุผล เที่ยงตรง ไม่ลำเอียง" },
+      { id: 12, roman: "XII", name: "The Hanged Man", titleTh: "ไพ่ชายคนแขวน / การรอคอย (เสียสละ)", imageUrl: "https://upload.wikimedia.org/wikipedia/commons/2/2b/RWS_Tarot_12_Hanged_Man.jpg", keywords: ["รอคอย", "เสียสละ", "กลับมุมมอง", "ชะงัก"], meaning: "สถานการณ์ช่วงนี้อาจรู้สึกอึดอัด ถูกแช่แข็ง ทำอะไรไม่ได้ดั่งใจ ต้องยอมเสียสละบางอย่างเพื่อผลประโยชน์ระยะยาว", advice: "ลองเปลี่ยนมุมมองความคิด ปล่อยวางเรื่องที่ยังควบคุมไม่ได้", benefit: "สอนให้รู้จักการรอคอยอย่างมีสติ และการมองโลกในมุมมองใหม่" },
+      { id: 13, roman: "XIII", name: "Death", titleTh: "ไพ่พญามัจจุราช / สิ้นสุดเพื่อเริ่มต้นใหม่", imageUrl: "https://upload.wikimedia.org/wikipedia/commons/d/d7/RWS_Tarot_13_Death.jpg", keywords: ["จุดจบปัญหา", "ละทิ้งอดีต", "เริ่มต้นใหม่", "เปลี่ยนแปลงใหญ่"], meaning: "หมายถึงการปิดฉากเรื่องเก่าๆ หรือปัญหาที่ยืดเยื้อ เพื่อก้าวเข้าสู่การเริ่มต้นใหม่ที่ดีและสดใสกว่าเดิม", advice: "ตัดใจจากสิ่งที่เป็นพิษในชีวิต แล้วเปิดประตูต้อนรับสิ่งใหม่", benefit: "ช่วยขจัดสิ่งเก่าที่เป็นอุปสรรค เพื่อเปิดทางให้ชีวิตได้เกิดใหม่" },
+      { id: 14, roman: "XIV", name: "Temperance", titleTh: "ไพ่การโยกย้าย / ปรับสมดุลยิปซี (ปรับตัว)", imageUrl: "https://upload.wikimedia.org/wikipedia/commons/f/f8/RWS_Tarot_14_Temperance.jpg", keywords: ["โยกย้าย", "ประนีประนอม", "ปรับตัว", "เยียวยา"], meaning: "มีเกณฑ์เดินทาง โยกย้ายสายงาน ปรับเปลี่ยนที่อยู่อาศัย หรือต้องปรับตัวเข้ากับสถานการณ์ใหม่ๆ ปัญหาจะค่อยๆ คลี่คลาย", advice: "ยืดหยุ่น ประนีประนอม เดินทางสายกลางเพื่อความสมดุล", benefit: "ช่วยในการปรับตัว เยียวยาจิตใจ และสร้างความยืดหยุ่นในชีวิต" },
+      { id: 15, roman: "XV", name: "The Devil", titleTh: "ไพ่พญามาร / กิเลสตัณหา (พันธนาการ)", imageUrl: "https://upload.wikimedia.org/wikipedia/commons/5/55/RWS_Tarot_15_Devil.jpg", keywords: ["สิ่งยั่วยวน", "กิเลสครอบงำ", "ความโลภ", "พันธนาการ"], meaning: "เตือนให้ระวังตกเป็นทาสของกิเลส ความโลภ หรือความรักที่ Toxic อบายมุข และการโดนหลอกลวงจนติดพันธนาการ", advice: "ตั้งสติให้มั่น รู้เท่าทันความโลภ พาตัวเองออกจากสิ่งยั่วยวน", benefit: "เป็นกระจกเงาสะท้อนเตือนภัย ให้รู้เท่าทันกิเลสและหลีกเลี่ยงอันตราย" },
+      { id: 16, roman: "XVI", name: "The Tower", titleTh: "ไพ่สายฟ้าฟาด / ตึกพังทลาย (เหตุฉับพลัน)", imageUrl: "https://upload.wikimedia.org/wikipedia/commons/5/53/RWS_Tarot_16_Tower.jpg", keywords: ["เหตุฉับพลัน", "พลิกล็อก", "ตื่นรู้", "ล้างบาง"], meaning: "เกิดเหตุการณ์กะทันหันที่คาดไม่ถึงเข้ามาล้างบางสิ่งเดิมๆ เพื่อขจัดสิ่งที่ไม่มั่นคงออกไปจากชีวิตอย่างรวดเร็ว", advice: "ตั้งสติ มองวิกฤตเป็นโอกาสในการสร้างรากฐานชีวิตใหม่", benefit: "ช่วยทำลายสิ่งที่จอมปลอมและพังทลายอุปสรรคให้เห็นความจริง" },
+      { id: 17, roman: "XVII", name: "The Star", titleTh: "ไพ่ดาวดวงประทีป / แสงสว่าง (ความหวัง)", imageUrl: "https://upload.wikimedia.org/wikipedia/commons/d/db/RWS_Tarot_17_Star.jpg", keywords: ["ความหวัง", "สบายใจ", "เยียวยา", "โชคชื่อเสียง"], meaning: "ชีวิตกลับมาสว่างไสว ปัญหาที่เคยหนักหน่วงจะคลี่คลาย มีความสุขสงบร่มเย็น มีโชค มีชื่อเสียง มีพลังบวก", advice: "คิดบวกเข้าไว้ รักษาพลังงานดีๆ ในตัว และลุยทำตามฝัน", benefit: "เติมเต็มกำลังใจ ความหวัง และความสุขสงบในจิตใจอย่างแท้จริง" },
+      { id: 18, roman: "XVIII", name: "The Moon", titleTh: "ไพ่พระจันทร์ / ความกังวล (สับสนคลุมเครือ)", imageUrl: "https://upload.wikimedia.org/wikipedia/commons/7/7f/RWS_Tarot_18_Moon.jpg", keywords: ["วิตกกังวล", "คิดมาก", "คลุมเครือ", "ระแวง"], meaning: "จิตใจอ่อนไหว วิตกกังวล คิดมาก นอนไม่ค่อยหลับ หรือเผชิญหน้ากับเรื่องราวที่คลุมเครือยังจับต้นชนปลายไม่ได้", advice: "อย่าเพิ่งตีตนไปก่อนไข้ หาความจริงให้แน่ชัด ทำจิตใจให้สงบ", benefit: "เตือนให้หยุดกังวลกับสิ่งที่ยังมาไม่ถึง และเพิ่มความรอบคอบ" },
+      { id: 19, roman: "XIX", name: "The Sun", titleTh: "ไพ่พระอาทิตย์ทรงกลด / ความรุ่งโรจน์ (ความสำเร็จ)", imageUrl: "https://upload.wikimedia.org/wikipedia/commons/1/17/RWS_Tarot_19_Sun.jpg", keywords: ["ความสำเร็จรุ่งโรจน์", "โชคใหญ่", "ความสุข", "พลังงานบวก"], meaning: "สุดยอดแห่งไพ่ยิปซีดีเลิศ! ชีวิตสว่างไสว ไร้อุปสรรค ประสบความสำเร็จงดงาม การงานโดดเด่น การเงินโชคใหญ่ ความรักสมหวัง", advice: "ยิ้มรับความสุข มั่นใจในตัวเอง และส่งต่อพลังบวกให้คนรอบข้าง", benefit: "นำพาโชคลาภ ความสำเร็จสูงสุด และพลังงานชีวิตอันเต็มเปี่ยม" },
+      { id: 20, roman: "XX", name: "Judgement", titleTh: "ไพ่แตรแห่งกรรม / คำพิพากษา (ผลกรรม)", imageUrl: "https://upload.wikimedia.org/wikipedia/commons/d/dd/RWS_Tarot_20_Judgement.jpg", keywords: ["ผลกรรมปรากฏ", "ข่าวดี", "โอกาสที่สอง", "ปลดปล่อย"], meaning: "ผลแห่งการกระทำในอดีตจะส่งผล ใครทำดีไว้จะได้รับข่าวดี โอกาสใหม่ หรือได้รับการปลดปล่อยจากความทุกข์ ได้ชีวิตใหม่", advice: "ให้อภัยอดีต เรียนรู้จากความผิดพลาด แล้วเริ่มต้นใหม่", benefit: "ช่วยปลดล็อกพันธนาการอดีต และมอบโอกาสครั้งที่สองในชีวิต" },
+      { id: 21, roman: "XXI", name: "The World", titleTh: "ไพ่จักรวาลยิปซี / สุขสมบูรณ์ (สำเร็จยั่งยืน)", imageUrl: "https://upload.wikimedia.org/wikipedia/commons/f/ff/RWS_Tarot_21_World.jpg", keywords: ["สมบูรณ์แบบ", "สำเร็จยั่งยืน", "จบลงด้วยดี", "ความสุข"], meaning: "เป้าหมายที่เพียรพยายามมานานสำเร็จลุล่วงอย่างงดงาม มีความสุขสมบูรณ์รอบด้าน การงาน การเงิน ความรัก ลงตัวที่สุด", advice: "เฉลิมฉลองความสำเร็จ ภาคภูมิใจในตนเอง และพร้อมก้าวสู่บทใหม่", benefit: "เติมเต็มความสำเร็จอันสมบูรณ์แบบและความสุขที่ยั่งยืนในชีวิต" }
+    ];
+
+    let currentDrawnCards = [];
+    let cardsFlippedState = new Array(8).fill(false);
+
+    /* ดึงภาพไพ่ยิปซีสากลแท้ (Rider-Waite Authentic Deck) */
+    function gypsyImageMarkup(card, className = 'gallery-art') {
+      const safeName = String(card.name || 'Gypsy Card').replace(/[&<>"']/g, ch => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
+      const imageUrl = card.imageUrl;
+      return `<img class="${className}" src="${imageUrl}" alt="${safeName}" loading="lazy">`;
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      initStarryBackground();
+      renderGallery();
+    });
+
+    function initStarryBackground() {
+      const canvas = document.getElementById('stars-canvas');
+      const ctx = canvas.getContext('2d');
+      let stars = [];
+      function resizeCanvas() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; }
+      resizeCanvas();
+      window.addEventListener('resize', resizeCanvas);
+      for (let i = 0; i < 90; i++) {
+        stars.push({ x: Math.random() * canvas.width, y: Math.random() * canvas.height, radius: Math.random() * 1.2 + 0.4, alpha: Math.random(), speed: Math.random() * 0.02 + 0.005 });
+      }
+      function animate() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        stars.forEach(star => {
+          star.alpha += star.speed;
+          if (star.alpha > 1 || star.alpha < 0) star.speed = -star.speed;
+          ctx.beginPath(); ctx.arc(star.x, star.y, star.radius, 0, Math.PI * 2);
+          ctx.fillStyle = `rgba(243, 198, 105, ${Math.max(0, star.alpha)})`; ctx.fill();
+        });
+        requestAnimationFrame(animate);
+      }
+      animate();
+    }
+
+    function playFlipSound() {
+      try {
+        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.type = 'sine'; osc.frequency.setValueAtTime(250, audioCtx.currentTime);
+        osc.frequency.exponentialRampToValueAtTime(800, audioCtx.currentTime + 0.1);
+        gain.gain.setValueAtTime(0.06, audioCtx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.1);
+        osc.connect(gain); gain.connect(audioCtx.destination);
+        osc.start(); osc.stop(audioCtx.currentTime + 0.1);
+      } catch (e) {}
+    }
+
+    function switchTab(tab) {
+      const readingTab = document.getElementById('tab-reading');
+      const galleryTab = document.getElementById('tab-gallery');
+      const btnReading = document.getElementById('nav-btn-reading');
+      const btnGallery = document.getElementById('nav-btn-gallery');
+
+      if (tab === 'reading') {
+        readingTab.classList.remove('hidden'); galleryTab.classList.add('hidden');
+        btnReading.className = "px-3 py-1.5 rounded-lg text-xs font-medium border border-mystic-gold/40 bg-mystic-gold/10 text-mystic-gold transition-all";
+        btnGallery.className = "px-3 py-1.5 rounded-lg text-xs font-medium border border-purple-800/60 bg-mystic-900/60 text-purple-300 hover:text-mystic-gold transition-all";
+      } else {
+        readingTab.classList.add('hidden'); galleryTab.classList.remove('hidden');
+        btnGallery.className = "px-3 py-1.5 rounded-lg text-xs font-medium border border-mystic-gold/40 bg-mystic-gold/10 text-mystic-gold transition-all";
+        btnReading.className = "px-3 py-1.5 rounded-lg text-xs font-medium border border-purple-800/60 bg-mystic-900/60 text-purple-300 hover:text-mystic-gold transition-all";
+      }
+    }
+
+    async function drawTarotCards() {
+      const button = document.getElementById('draw-cards-btn');
+      const deck = document.querySelector('.deck-stage');
+      const grid = document.getElementById('cards-grid');
+      if (!button || !deck || !grid) return;
+
+      button.disabled = true;
+      button.innerHTML = '<i class="fa-solid fa-shuffle mr-1.5"></i><span>กำลังสับไพ่ยิปซี 8 ใบ...</span>';
+      deck.classList.add('shuffling');
+
+      try {
+        await new Promise(resolve => setTimeout(resolve, 800));
+        cardsFlippedState = new Array(8).fill(false);
+        const shuffled = [...GYPSY_CARDS];
+        for (let i = shuffled.length - 1; i > 0; i--) {
+          const j = Math.floor(Math.random() * (i + 1));
+          [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+        }
+        currentDrawnCards = shuffled.slice(0, 8).map(card => ({ ...card, reversed: Math.random() < 0.20 }));
+
+        /* Render 8 Cards HTML */
+        grid.innerHTML = currentDrawnCards.map((card, i) => `
+          <div class="flex flex-col items-center">
+            <div class="mb-1.5 text-center">
+              <span class="text-[10px] sm:text-[11px] font-cinzel tracking-wider uppercase font-semibold ${POSITIONS[i].color} ${POSITIONS[i].bg} px-2 py-0.5 rounded-full">
+                ${POSITIONS[i].title}
+              </span>
+            </div>
+            <div class="card-container perspective-1000 w-36 sm:w-44 h-60 sm:h-72 cursor-pointer" onclick="flipCard(${i})">
+              <div id="card-inner-${i}" class="card-inner relative w-full h-full transform-style-3d shadow-xl">
+                <!-- Back -->
+                <div class="absolute w-full h-full rounded-xl bg-gradient-to-br from-mystic-900 via-mystic-800 to-mystic-950 border-2 border-mystic-gold/60 p-2 backface-hidden card-pulse flex flex-col justify-between">
+                  <div class="w-full h-full border border-mystic-gold/30 rounded-lg flex flex-col items-center justify-center p-2 text-center">
+                    <i class="fa-solid fa-eye text-mystic-gold text-2xl mb-1.5 animate-pulse"></i>
+                    <span class="text-[9px] font-cinzel font-bold text-mystic-gold tracking-widest">แตะเปิดไพ่ใบที่ ${i+1}</span>
+                  </div>
+                </div>
+                <!-- Front -->
+                <div id="card-front-${i}" class="absolute w-full h-full rounded-xl bg-mystic-900 border-2 border-mystic-gold p-2 sm:p-3 backface-hidden rotate-y-180 flex flex-col justify-between text-center gold-border">
+                  <div class="text-[8px] font-cinzel text-mystic-gold font-bold tracking-widest uppercase">GYPSY ${card.roman}</div>
+                  <div class="card-art-frame w-full flex-1 min-h-0 overflow-hidden">${gypsyImageMarkup(card, `gypsy-art ${card.reversed ? 'rotate-180' : ''}`)}</div>
+                  <div class="pt-1">
+                    <div class="text-xs font-bold text-amber-100 font-cinzel leading-tight truncate">${card.name}</div>
+                    <div class="text-[9px] text-purple-200 truncate">${card.titleTh}</div>
+                    <div class="text-[8px] ${card.reversed ? 'text-rose-300' : 'text-emerald-300'}">${card.reversed ? 'ไพ่กลับหัว' : 'ไพ่ตั้งตรง'}</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        `).join('');
+
+        document.getElementById('cards-display-area')?.classList.remove('hidden');
+        renderSummaryAndBreakdown();
+        document.getElementById('cards-display-area')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      } catch (error) {
+        console.error(error);
+      } finally {
+        deck.classList.remove('shuffling');
+        button.disabled = false;
+        button.innerHTML = '<i class="fa-solid fa-rotate mr-1.5"></i><span>สับไพ่ยิปซีชุดใหม่ (8 ใบ)</span>';
+      }
+    }
+
+    function flipCard(index) {
+      const container = document.getElementById(`card-inner-${index}`)?.parentElement;
+      if (container && !cardsFlippedState[index]) {
+        container.classList.add('flipped');
+        cardsFlippedState[index] = true;
+        playFlipSound();
+      }
+    }
+
+    function renderSummaryAndBreakdown() {
+      const [c1, c2, c3, c4, c5, c6, c7, c8] = currentDrawnCards;
+
+      document.getElementById('overall-summary-text').innerHTML = `
+        <strong>ดวงชะตาโดยรวม 8 มิติ:</strong> ตัวตนของคุณช่วงนี้สัมพันธ์กับ <strong>${c1.name} (${c1.titleTh})</strong> 
+        โดยมีอุปสรรคสิ่งกระทบจาก <strong>${c2.name}</strong> 
+        และมีรากฐานดวงชะตาเดิมจาก <strong>${c3.name}</strong>. 
+        ในอนาคตอันใกล้ดวงจะเคลื่อนเข้าสู่ <strong>${c4.name}</strong> 
+        บทสรุปภาพรวมคือ <strong>${c5.name}</strong>.<br>
+        <span class="inline-block mt-1 text-mystic-gold">
+          • <strong>ด้านการงาน:</strong> ${c6.name} (${c6.keywords.join(', ')})<br>
+          • <strong>ด้านการเงิน:</strong> ${c7.name} (${c7.keywords.join(', ')})<br>
+          • <strong>ด้านความรัก:</strong> ${c8.name} (${c8.keywords.join(', ')})
+        </span>
+      `;
+      
+      document.getElementById('cards-breakdown-list').innerHTML = currentDrawnCards.map((card, idx) => `
+        <article class="border p-3.5 rounded-lg ${POSITIONS[idx].bg} flex flex-col sm:flex-row gap-3 items-start text-xs">
+          <div class="w-20 shrink-0 card-art-frame">${gypsyImageMarkup(card, `gallery-art ${card.reversed?'rotate-180':''}`)}</div>
+          <div class="flex-grow space-y-1.5">
+            <div class="font-bold tracking-wider ${POSITIONS[idx].color}">${POSITIONS[idx].title} (${POSITIONS[idx].sub})</div>
+            <h4 class="text-sm font-bold text-amber-100 font-cinzel">${card.name} (${card.titleTh}) <span class="${card.reversed?'text-rose-300':'text-emerald-300'} font-normal">[${card.reversed?'ไพ่กลับหัว':'ไพ่ตั้งตรง'}]</span></h4>
+            <div class="flex flex-wrap gap-1">${card.keywords.map(kw=>`<span class="text-[9px] bg-mystic-950/60 text-purple-200 px-2 py-0.5 rounded-full border border-purple-700/40">#${kw}</span>`).join('')}</div>
+            <p class="text-purple-100/90 leading-relaxed"><strong class="text-mystic-gold">คำทำนายยิปซี:</strong> ${card.meaning}</p>
+            <p class="text-emerald-100/90 leading-relaxed bg-emerald-950/40 p-2 rounded border border-emerald-800/40"><strong class="text-emerald-400">แนวทางและข้อคิดประจำใบ:</strong> ${card.advice}</p>
+            <p class="text-cyan-100/90 leading-relaxed bg-cyan-950/40 p-2 rounded border border-cyan-800/40"><strong class="text-cyan-300">ประโยชน์ของคำทำนายตำแหน่งนี้:</strong> ${card.benefit}</p>
+          </div>
+        </article>
+      `).join('');
+    }
+
+    function renderGallery() {
+      document.getElementById('gallery-grid').innerHTML = GYPSY_CARDS.map(card => `
+        <button type="button" onclick="openCardModal(${card.id})" class="bg-mystic-900/80 border border-purple-800/40 hover:border-mystic-gold rounded-lg p-2 flex flex-col items-center text-center cursor-pointer transition-all transform hover:-translate-y-1">
+          <div class="text-[9px] font-cinzel text-mystic-gold/80 mb-1">GYPSY ${card.roman}</div>
+          <div class="w-full card-art-frame">${gypsyImageMarkup(card,'gallery-art')}</div>
+          <div class="text-[11px] font-bold text-amber-100 font-cinzel mt-1.5 truncate w-full">${card.name}</div>
+        </button>`).join('');
+    }
+
+    function openCardModal(cardId) {
+      const card = GYPSY_CARDS.find(c => c.id === cardId);
+      if (!card) return;
+      document.getElementById('modal-content').innerHTML = `
+        <div class="text-center space-y-1">
+          <span class="text-[10px] font-cinzel text-mystic-gold border border-mystic-gold/40 px-2.5 py-0.5 rounded-full">ไพ่ยิปซีโบราณลำดับที่ ${card.roman}</span>
+          <h3 class="text-xl font-bold font-cinzel text-amber-100 mt-1">${card.name}</h3>
+          <p class="text-xs text-purple-300">${card.titleTh}</p>
+        </div>
+        <div class="w-32 mx-auto card-art-frame my-3">${gypsyImageMarkup(card,'gallery-art')}</div>
+        <div class="flex flex-wrap justify-center gap-1 my-1">
+          ${card.keywords.map(kw => `<span class="text-[10px] bg-purple-900/50 text-purple-200 px-2.5 py-0.5 rounded-full border border-purple-600/40">#${kw}</span>`).join('')}
+        </div>
+        <div class="space-y-2 pt-1 text-xs">
+          <div class="bg-mystic-950/60 p-3 rounded-lg border border-purple-800/40">
+            <h4 class="font-bold text-mystic-gold mb-1"><i class="fa-solid fa-scroll mr-1"></i>คำทำนายดวงชะตาไพ่ยิปซี</h4>
+            <p class="text-purple-100/90 leading-relaxed">${card.meaning}</p>
+          </div>
+          <div class="bg-emerald-950/30 p-3 rounded-lg border border-emerald-800/40">
+            <h4 class="font-bold text-emerald-400 mb-1"><i class="fa-solid fa-lightbulb mr-1"></i>คำแนะนำและการแก้ไข</h4>
+            <p class="text-emerald-100/90 leading-relaxed">${card.advice}</p>
+          </div>
+          <div class="bg-cyan-950/30 p-3 rounded-lg border border-cyan-800/40">
+            <h4 class="font-bold text-cyan-300 mb-1"><i class="fa-solid fa-star mr-1"></i>ประโยชน์ของไพ่ใบนี้</h4>
+            <p class="text-cyan-100/90 leading-relaxed">${card.benefit}</p>
+          </div>
+        </div>
+      `;
+      document.getElementById('card-modal').classList.remove('hidden');
+    }
+
+    function closeModal() {
+      document.getElementById('card-modal').classList.add('hidden');
+    }
+  </script>
+</body>
+</html>
