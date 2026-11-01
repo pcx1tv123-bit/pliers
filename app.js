@@ -218,7 +218,7 @@ function evaluateLiveClassStatus(now) {
     if (currentClass) {
         // --- อยู่ในคาบเรียน: นับถอยหลังหมดคาบเรียน ---
         if (titleEl) titleEl.textContent = currentClass.subject;
-        if (subEl) subEl.textContent = currentClass.isLunch ? "อยู่ในช่วงพักรับประทานอาหารกลางวัน" : `ห้องเรียน: ${currentClass.room} (${currentClass.timeStart} - ${currentClass.timeEnd} น.)`;
+        if (subEl) subEl.textContent = currentClass.isLunch ? "อยู่ในช่วงพักรับประทานอาหารกลางวัน" : `รห้สวิชา: ${currentClass.room} (${currentClass.timeStart} - ${currentClass.timeEnd} น.)`;
         if (iconBox) iconBox.innerHTML = currentClass.isLunch ? `<i class="fa-solid fa-utensils"></i>` : `<i class="fa-solid fa-book-open"></i>`;
         if (countdownLabelEl) countdownLabelEl.textContent = "เวลาคงเหลือในคาบนี้";
 
@@ -507,7 +507,7 @@ function sendDailyScheduleToGoogleChat(isAuto = false) {
 
     let classTextList = daySchedule.classes.map(c => {
         if (c.isLunch) return `🍱 *${c.timeStart} - ${c.timeEnd} น.* : พักรับประทานอาหาร (Lunch)`;
-        return `📚 *${c.timeStart} - ${c.timeEnd} น.* : ${c.subject}\n    📍 *ห้องเรียน:* ${c.room}`;
+        return `📚 *${c.timeStart} - ${c.timeEnd} น.* : ${c.subject}\n    📍 *รห้สวิชา:* ${c.room}`;
     }).join('\n\n');
 
     const payload = {
@@ -521,7 +521,7 @@ function sendClassReminderWebhook(item, dayName) {
     const weekInfo = calculateAcademicWeek();
     const webAppUrl = getWebAppUrl();
     const payload = {
-        text: `⏰ *[แจ้งเตือนก่อนเริ่มคาบ 10 นาที!]*\n\n📚 *วิชา:* ${item.subject}\n📍 *ห้องเรียน:* ${item.room}\n🕒 *เวลาเรียน:* ${item.timeStart} - ${item.timeEnd} น.\n📅 *ประจำ:* ${dayName} (${weekInfo.text})\n\n🔗 *เข้าชมตารางเรียนออนไลน์:* ${webAppUrl}\n\nเตรียมตัวเข้าห้องเรียนได้เลยครับนักศึกษา IT.4501! 🎒`
+        text: `⏰ *[แจ้งเตือนก่อนเริ่มคาบ 10 นาที!]*\n\n📚 *วิชา:* ${item.subject}\n📍 *รห้สวิชา:* ${item.room}\n🕒 *เวลาเรียน:* ${item.timeStart} - ${item.timeEnd} น.\n📅 *ประจำ:* ${dayName} (${weekInfo.text})\n\n🔗 *เข้าชมตารางเรียนออนไลน์:* ${webAppUrl}\n\nเตรียมตัวเข้าห้องเรียนได้เลยครับนักศึกษา IT.4501! 🎒`
     };
     sendWebhookPayload(payload);
 }
@@ -529,7 +529,7 @@ function sendClassReminderWebhook(item, dayName) {
 function sendSingleSubjectWebhook(subject, timeStr, room, dayName) {
     const webAppUrl = getWebAppUrl();
     const payload = {
-        text: `📌 *[ข้อมูลวิชาเรียน - IT.4501]*\n\n📚 *วิชา:* ${subject}\n🕒 *เวลา:* ${timeStr} น.\n📍 *ห้องเรียน:* ${room}\n📅 *วัน:* ${dayName}\n\n🔗 *เข้าชมตารางเรียนออนไลน์:* ${webAppUrl}`
+        text: `📌 *[ข้อมูลวิชาเรียน - IT.4501]*\n\n📚 *วิชา:* ${subject}\n🕒 *เวลา:* ${timeStr} น.\n📍 *รห้สวิชา:* ${room}\n📅 *วัน:* ${dayName}\n\n🔗 *เข้าชมตารางเรียนออนไลน์:* ${webAppUrl}`
     };
     sendWebhookPayload(payload);
 }
