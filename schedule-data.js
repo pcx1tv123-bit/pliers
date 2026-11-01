@@ -4,7 +4,7 @@
 const scheduleData = {
   className: "ม. 5/15",
   semester: "2/2569",
-  startDate: "2026-11-02", // วันจันทร์ที่ 2 พฤศจิกายน 2569
+  startDate: "2026-11-01", // วันจันทร์ที่ 2 พฤศจิกายน 2569
   timeSlots: [
     { period: 1, time: "08.30-09.20", startTime: "08:30", endTime: "09:20" },
     { period: 2, time: "09.20-10.10", startTime: "09:20", endTime: "10:10" },
