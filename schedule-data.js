@@ -40,6 +40,17 @@ const MASTER_SCHEDULE = {
                 color: "bg-blue-50 dark:bg-blue-950/40 border-blue-200 dark:border-blue-900/60 text-blue-900 dark:text-blue-200" 
             },
             { 
+                id: "m4", 
+                timeStart: "11:00", 
+                timeEnd: "11:50", 
+                subject: "ว่าง", 
+                room: "-", 
+                instructor: "-", 
+                image: "https://i.pinimg.com/1200x/8e/60/d3/8e60d32df4b628534e56f8dc2bd5788e.jpg",
+                description: "-",
+                color: "bg-blue-50 dark:bg-blue-950/40 border-blue-200 dark:border-blue-900/60 text-blue-900 dark:text-blue-200" 
+            },
+            { 
                 id: "mL", 
                 timeStart: "11:50", 
                 timeEnd: "12:40", 
@@ -52,7 +63,7 @@ const MASTER_SCHEDULE = {
                 color: "bg-emerald-50 dark:bg-emerald-950/40 border-emerald-200 dark:border-emerald-900/60 text-emerald-800 dark:text-emerald-200" 
             },
             { 
-                id: "m4", 
+                id: "m5", 
                 timeStart: "12:40", 
                 timeEnd: "14:20", 
                 subject: "วิทยาศาสตร์", 
@@ -63,7 +74,7 @@ const MASTER_SCHEDULE = {
                 color: "bg-cyan-50 dark:bg-cyan-950/40 border-cyan-200 dark:border-cyan-900/60 text-cyan-900 dark:text-cyan-200" 
             },
             { 
-                id: "m5", 
+                id: "m6", 
                 timeStart: "14:20", 
                 timeEnd: "15:10", 
                 subject: "ว่าง", 
