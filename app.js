@@ -48,7 +48,7 @@ window.addEventListener('DOMContentLoaded', () => {
 });
 
 function loadSavedSettings() {
-    semesterStartDate = "2026-10-19";
+    semesterStartDate = "2026-11-02";
     const semInput = document.getElementById('semesterStartDateInput');
     if (semInput) semInput.value = semesterStartDate;
 
