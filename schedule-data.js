@@ -1,4 +1,4 @@
-// ข้อมูลตารางเรียนหลัก ม. 5/15 (รหัสวิชาอยู่ในช่องห้อง)
+// ข้อมูลตารางเรียนหลัก ม. 5/15 ภาคเรียนที่ 2/2569
 const MASTER_SCHEDULE = {
     mon: {
         dayName: "วันจันทร์",
@@ -48,7 +48,7 @@ const MASTER_SCHEDULE = {
                 instructor: "-", 
                 image: "https://i.pinimg.com/1200x/8e/60/d3/8e60d32df4b628534e56f8dc2bd5788e.jpg",
                 description: "-",
-                color: "bg-blue-50 dark:bg-blue-950/40 border-blue-200 dark:border-blue-900/60 text-blue-900 dark:text-blue-200" 
+                color: "bg-gray-50 dark:bg-gray-900/40 border-gray-200 dark:border-gray-800/60 text-gray-700 dark:text-gray-300" 
             },
             { 
                 id: "mL", 
@@ -65,16 +65,27 @@ const MASTER_SCHEDULE = {
             { 
                 id: "m5", 
                 timeStart: "12:40", 
-                timeEnd: "14:20", 
-                subject: "วิทยาศาสตร์", 
+                timeEnd: "13:30", 
+                subject: "วิทยาศาสตร์กายภาพ", 
                 room: "ว30101", 
                 instructor: "ครูพงษ์ดนัย", 
                 image: "https://i.pinimg.com/1200x/8e/60/d3/8e60d32df4b628534e56f8dc2bd5788e.jpg",
-                description: "วิทยาศาสตร์กาย",
+                description: "วิทยาศาสตร์กายภาพ",
                 color: "bg-cyan-50 dark:bg-cyan-950/40 border-cyan-200 dark:border-cyan-900/60 text-cyan-900 dark:text-cyan-200" 
             },
             { 
                 id: "m6", 
+                timeStart: "13:30", 
+                timeEnd: "14:20", 
+                subject: "วิทยาศาสตร์กายภาพ", 
+                room: "ว30101", 
+                instructor: "ครูพงษ์ดนัย", 
+                image: "https://i.pinimg.com/1200x/8e/60/d3/8e60d32df4b628534e56f8dc2bd5788e.jpg",
+                description: "วิทยาศาสตร์กายภาพ",
+                color: "bg-cyan-50 dark:bg-cyan-950/40 border-cyan-200 dark:border-cyan-900/60 text-cyan-900 dark:text-cyan-200" 
+            },
+            { 
+                id: "m7", 
                 timeStart: "14:20", 
                 timeEnd: "15:10", 
                 subject: "ว่าง", 
@@ -82,7 +93,7 @@ const MASTER_SCHEDULE = {
                 instructor: "-", 
                 image: "https://i.pinimg.com/1200x/8e/60/d3/8e60d32df4b628534e56f8dc2bd5788e.jpg",
                 description: "-",
-                color: "bg-cyan-50 dark:bg-cyan-950/40 border-cyan-200 dark:border-cyan-900/60 text-cyan-900 dark:text-cyan-200" 
+                color: "bg-gray-50 dark:bg-gray-900/40 border-gray-200 dark:border-gray-800/60 text-gray-700 dark:text-gray-300" 
             }
         ]
     },
@@ -96,11 +107,11 @@ const MASTER_SCHEDULE = {
                 id: "t1", 
                 timeStart: "08:30", 
                 timeEnd: "09:20", 
-                subject: "ภาษาอังกฤษ", 
-                room: "อ32102", 
-                instructor: "ครูนัตชลีย์", 
+                subject: "พลศึกษา", 
+                room: "พ32202", 
+                instructor: "ครูกรชิต", 
                 image: "https://i.pinimg.com/1200x/8e/60/d3/8e60d32df4b628534e56f8dc2bd5788e.jpg",
-                description: "ภาษาอังกฤษ",
+                description: "พลศึกษา",
                 color: "bg-red-50 dark:bg-red-950/40 border-red-200 dark:border-red-900/60 text-red-900 dark:text-red-200" 
             },
             { 
@@ -129,11 +140,11 @@ const MASTER_SCHEDULE = {
                 id: "t4", 
                 timeStart: "11:00", 
                 timeEnd: "11:50", 
-                subject: "พลศึกษา", 
-                room: "พ32202", 
-                instructor: "ครูกรชิต", 
+                subject: "ภาษาอังกฤษ", 
+                room: "อ32102", 
+                instructor: "ครูฉัตชลีย์", 
                 image: "https://i.pinimg.com/1200x/8e/60/d3/8e60d32df4b628534e56f8dc2bd5788e.jpg",
-                description: "พลศึกษา",
+                description: "ภาษาอังกฤษ",
                 color: "bg-orange-50 dark:bg-orange-950/40 border-orange-200 dark:border-orange-900/60 text-orange-900 dark:text-orange-200" 
             },
             { 
